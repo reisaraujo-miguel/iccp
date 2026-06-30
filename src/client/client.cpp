@@ -3,7 +3,6 @@
 #include "../manager/manager.hpp"
 #include "../protocol/protocol.hpp"
 
-#include <algorithm>
 #include <arpa/inet.h>
 #include <chrono>
 #include <cstring>
@@ -17,12 +16,6 @@
 #include <vector>
 
 static constexpr const char *MANAGER_ID = "MANAGER\0\0\0\0\0\0\0\0\0";
-
-static std::string pad16(const std::string &s) {
-  std::string out(16, '\0');
-  std::copy_n(s.begin(), std::min(s.size(), size_t{16}), out.begin());
-  return out;
-}
 
 static std::string id_to_string(const char (&id)[16]) { return {id, 16}; }
 
@@ -61,7 +54,7 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  std::string client_id = pad16(argv[1]);
+  std::string client_id = pad_n(argv[1], 16);
   std::string server_ip = argv[2];
   uint16_t server_port =
       (argc >= 4) ? static_cast<uint16_t>(std::stoi(argv[3])) : 9000;
@@ -225,7 +218,7 @@ int main(int argc, char **argv) {
         } else {
           rr.num_sensors = 1;
 
-          std::string sid = pad16(target);
+          std::string sid = pad_n(target, 16);
           payload.insert(payload.end(),
                          reinterpret_cast<const uint8_t *>(sid.data()),
                          reinterpret_cast<const uint8_t *>(sid.data()) + 16);

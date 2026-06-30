@@ -1,6 +1,8 @@
 #pragma once
 
+#include <algorithm>
 #include <cstdint>
+#include <string>
 
 // enum that defines the possible types of devices
 enum class device_type : uint8_t {
@@ -49,3 +51,9 @@ struct disconnect {
 };
 
 #pragma pack(pop) // Restore original compiler alignment settings
+
+static std::string pad_n(const std::string &s, size_t n) {
+  std::string out(n, '\0');
+  std::copy_n(s.begin(), std::min(s.size(), size_t{n}), out.begin());
+  return out;
+}

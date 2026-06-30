@@ -3,7 +3,6 @@
 #include "../manager/manager.hpp"
 #include "../protocol/protocol.hpp"
 
-#include <algorithm>
 #include <arpa/inet.h>
 #include <chrono>
 #include <cstring>
@@ -17,24 +16,6 @@
 #include <vector>
 
 static constexpr const char *MANAGER_ID = "MANAGER\0\0\0\0\0\0\0\0\0";
-
-static std::string pad16(const std::string &s) {
-  std::string out(16, '\0');
-  std::copy_n(s.begin(), std::min(s.size(), size_t{16}), out.begin());
-  return out;
-}
-
-static std::string pad32(const std::string &s) {
-  std::string out(32, '\0');
-  std::copy_n(s.begin(), std::min(s.size(), size_t{32}), out.begin());
-  return out;
-}
-
-static std::string pad8(const std::string &s) {
-  std::string out(8, '\0');
-  std::copy_n(s.begin(), std::min(s.size(), size_t{8}), out.begin());
-  return out;
-}
 
 static uint32_t now_ms() {
   return static_cast<uint32_t>(
@@ -58,7 +39,7 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  std::string dev_id = pad16(argv[1]);
+  std::string dev_id = pad_n(argv[1], 16);
   std::string dev_type_str = argv[2];
   std::string server_ip = argv[3];
 
@@ -186,7 +167,7 @@ int main(int argc, char **argv) {
     sd.d_type = d_type;
     sd.value = value;
 
-    std::memcpy(sd.unit, pad8(unit).data(), 8);
+    std::memcpy(sd.unit, pad_n(unit, 8).data(), 8);
 
     sd.status = sensor_stat::OK;
 
