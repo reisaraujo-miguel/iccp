@@ -82,7 +82,7 @@ void Manager::run() {
     return;
   }
 
-  std::cout << "[manager] listening on 0.0.0.0:" << port_ << std::endl;
+  std::cout << "[manager] listening on 0.0.0.0:" << port_ << "\n";
 
   std::vector<pollfd> pfds;
   pfds.push_back({listen_fd_, POLLIN, 0});
@@ -110,7 +110,7 @@ void Manager::run() {
 
         std::cout << "[manager] new connection fd=" << cfd << " from "
                   << inet_ntoa(client_addr.sin_addr) << ":"
-                  << ntohs(client_addr.sin_port) << std::endl;
+                  << ntohs(client_addr.sin_port) << "\n";
       }
 
       --ready;
@@ -137,7 +137,7 @@ void Manager::run() {
           dispatch(fd, msg);
         } catch (const std::exception &e) {
           std::cerr << "[manager] recv error fd=" << fd << ": " << e.what()
-                    << std::endl;
+                    << "\n";
 
           handle_disconnect(fd);
           close(fd);
@@ -178,13 +178,13 @@ void Manager::dispatch(int fd, const unpacked_message &msg) {
     break;
   default:
     std::cerr << "[manager] unexpected msg type "
-              << static_cast<int>(msg.header.type) << " fd=" << fd << std::endl;
+              << static_cast<int>(msg.header.type) << " fd=" << fd << "\n";
   }
 }
 
 void Manager::handle_connect(int fd, const unpacked_message &msg) {
   if (msg.payload.size() < sizeof(struct connect)) {
-    std::cerr << "[manager] CONNECT payload too short" << std::endl;
+    std::cerr << "[manager] CONNECT payload too short" << "\n";
     return;
   }
 
@@ -212,7 +212,7 @@ void Manager::handle_connect(int fd, const unpacked_message &msg) {
 
   std::cout << "[manager] device \"" << dev_id
             << "\" type=" << static_cast<int>(d_type) << " connected fd=" << fd
-            << std::endl;
+            << "\n";
 
   send_connect_ack(fd, msg.header.sequence_number, dev_id,
                    connect_stat::ACCEPTED);
@@ -240,7 +240,7 @@ void Manager::handle_sensor_data(int fd, const unpacked_message &msg) {
 
   std::cout << "[manager] reading \"" << dev_id
             << "\" type=" << static_cast<int>(d_type) << " val=" << sd.value
-            << std::endl;
+            << "\n";
 
   check_hysteresis(dev_id, d_type, sd.value);
   check_alarms(dev_id, d_type, sd.value);
@@ -264,7 +264,7 @@ void Manager::handle_actuator_ack(int fd, const unpacked_message &msg) {
   std::cout << "[manager] actuator \"" << it->second.id
             << "\" ack seq=" << ack.sequence_ref
             << " st=" << static_cast<int>(ack.status)
-            << " cur=" << static_cast<int>(ack.current_state) << std::endl;
+            << " cur=" << static_cast<int>(ack.current_state) << "\n";
 }
 
 void Manager::handle_read_request(int fd, const unpacked_message &msg) {
@@ -354,7 +354,7 @@ void Manager::handle_read_request(int fd, const unpacked_message &msg) {
   tcp_send(fd, message);
 
   std::cout << "[manager] read_response → " << static_cast<int>(entries)
-            << " entries" << std::endl;
+            << " entries" << "\n";
 }
 
 void Manager::handle_config(int fd, const unpacked_message &msg) {
@@ -429,7 +429,7 @@ void Manager::handle_config(int fd, const unpacked_message &msg) {
   tcp_send(fd, message);
 
   std::cout << "[manager] config_ack → " << static_cast<int>(ca->status)
-            << std::endl;
+            << "\n";
 }
 
 void Manager::check_hysteresis(const std::string &sensor_id,
@@ -472,7 +472,7 @@ void Manager::check_hysteresis(const std::string &sensor_id,
     std::cout << "[manager] hysteresis: " << sensor_id << " val=" << value
               << " max=" << lim.max << " hyst=" << lim.hysteresis << " → "
               << (should_be_on ? "ON" : "OFF") << " act=" << actuator_id
-              << std::endl;
+              << "\n";
 
     send_actuator_cmd(actuator_id,
                       should_be_on ? actuator_state::ON : actuator_state::OFF,
@@ -527,7 +527,7 @@ void Manager::check_alarms(const std::string &sensor_id,
     }
 
     std::cout << "[manager] ALARM! " << sensor_id << " val=" << value
-              << " < min=" << lim.min << std::endl;
+              << " < min=" << lim.min << "\n";
   } else {
     active_alarms_.erase(std::remove_if(active_alarms_.begin(),
                                         active_alarms_.end(),
@@ -631,14 +631,14 @@ void Manager::send_connect_ack(int fd, uint16_t seq_ref,
 
   std::cout << "[manager] connect_ack → " << dest_id
             << " st=" << static_cast<int>(status) << " iv=" << ack.interval_ms
-            << "ms" << std::endl;
+            << "ms" << "\n";
 }
 
 void Manager::handle_disconnect(int fd) {
   auto it = devices_.find(fd);
   if (it != devices_.end())
     std::cout << "[manager] device \"" << it->second.id << "\" disconnected"
-              << std::endl;
+              << "\n";
 
   client_fds_.erase(std::remove(client_fds_.begin(), client_fds_.end(), fd),
                     client_fds_.end());

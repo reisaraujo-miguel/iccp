@@ -50,7 +50,7 @@ static void print_usage() {
 int main(int argc, char **argv) {
   if (argc < 3) {
     std::cerr << "usage: client <client_id> <server_ip> [server_port=9000]"
-              << std::endl;
+              << "\n";
     return 1;
   }
 
@@ -78,7 +78,7 @@ int main(int argc, char **argv) {
   }
 
   std::cout << "[client] connected to " << server_ip << ":" << server_port
-            << std::endl;
+            << "\n";
   print_usage();
 
   uint16_t seq = 1;
@@ -100,7 +100,7 @@ int main(int argc, char **argv) {
     // incoming messages from manager
     if (pfds[1].revents & (POLLIN | POLLHUP | POLLERR)) {
       if (pfds[1].revents & (POLLHUP | POLLERR)) {
-        std::cerr << "[client] server disconnected" << std::endl;
+        std::cerr << "[client] server disconnected" << "\n";
         break;
       }
 
@@ -186,7 +186,7 @@ int main(int argc, char **argv) {
           break;
         }
       } catch (const std::exception &e) {
-        std::cerr << "[client] recv error: " << e.what() << std::endl;
+        std::cerr << "[client] recv error: " << e.what() << "\n";
         break;
       }
     }
@@ -230,7 +230,7 @@ int main(int argc, char **argv) {
                                   client_id, MANAGER_ID, payload);
         tcp_send(sock, msg);
 
-        std::cout << "[client] READ_REQUEST sent" << std::endl;
+        std::cout << "[client] READ_REQUEST sent" << "\n";
       } else if (cmd == "config") {
         std::string type_str;
 
@@ -277,7 +277,7 @@ int main(int argc, char **argv) {
         tcp_send(sock, msg);
 
         std::cout << "[client] CONFIG sent: " << type_str << " min=" << min_v
-                  << " max=" << max_v << " hyst=" << hyst << std::endl;
+                  << " max=" << max_v << " hyst=" << hyst << "\n";
       } else {
         std::cout << "unknown command: " << cmd << "\n";
         print_usage();

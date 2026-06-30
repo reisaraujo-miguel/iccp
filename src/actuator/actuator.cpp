@@ -33,8 +33,8 @@ int main(int argc, char **argv) {
   if (argc < 4) {
     std::cerr << "usage: actuator <device_id> <device_type> <server_ip> "
                  "[server_port=9000]"
-              << std::endl;
-    std::cerr << "  device_type: heater|humidifier|fan" << std::endl;
+              << "\n";
+    std::cerr << "  device_type: heater|humidifier|fan" << "\n";
     return 1;
   }
 
@@ -52,7 +52,7 @@ int main(int argc, char **argv) {
   } else if (dev_type_str == "fan") {
     d_type = device_type::FAN_ACTUATOR;
   } else {
-    std::cerr << "unknown device_type: " << dev_type_str << std::endl;
+    std::cerr << "unknown device_type: " << dev_type_str << "\n";
     return 1;
   }
 
@@ -75,7 +75,7 @@ int main(int argc, char **argv) {
   }
 
   std::cout << "[actuator] connected to " << server_ip << ":" << server_port
-            << std::endl;
+            << "\n";
 
   // send "CONNECT"
   struct connect conn{};
@@ -94,7 +94,7 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  std::cout << "[actuator] CONNECT sent, waiting for ACK..." << std::endl;
+  std::cout << "[actuator] CONNECT sent, waiting for ACK..." << "\n";
 
   // wait for ACK
   unpacked_message ack_msg;
@@ -102,14 +102,14 @@ int main(int argc, char **argv) {
     ack_msg = tcp_receive(sock);
   } catch (const std::exception &e) {
     std::cerr << "[actuator] failed to receive CONNECT_ACK: " << e.what()
-              << std::endl;
+              << "\n";
     close(sock);
     return 1;
   }
 
   if (ack_msg.header.type != message_type::CONNECT_ACK) {
     std::cerr << "[actuator] expected CONNECT_ACK, got "
-              << static_cast<int>(ack_msg.header.type) << std::endl;
+              << static_cast<int>(ack_msg.header.type) << "\n";
     close(sock);
     return 1;
   }
@@ -119,13 +119,13 @@ int main(int argc, char **argv) {
     std::memcpy(&cack, ack_msg.payload.data(), sizeof(cack));
 
   if (cack.status != connect_stat::ACCEPTED) {
-    std::cerr << "[actuator] connection rejected" << std::endl;
+    std::cerr << "[actuator] connection rejected" << "\n";
     close(sock);
     return 1;
   }
 
   std::cout << "[actuator] CONNECT_ACK accepted, waiting for commands..."
-            << std::endl;
+            << "\n";
 
   actuator_state current_state = actuator_state::OFF;
 
@@ -135,13 +135,13 @@ int main(int argc, char **argv) {
     try {
       msg = tcp_receive(sock);
     } catch (const std::exception &e) {
-      std::cerr << "[actuator] recv error: " << e.what() << std::endl;
+      std::cerr << "[actuator] recv error: " << e.what() << "\n";
       break;
     }
 
     if (msg.header.type != message_type::ACTUATOR_CMD) {
       std::cerr << "[actuator] unexpected msg type "
-                << static_cast<int>(msg.header.type) << std::endl;
+                << static_cast<int>(msg.header.type) << "\n";
       continue;
     }
 
@@ -155,7 +155,7 @@ int main(int argc, char **argv) {
 
     std::cout << "[actuator] CMD: "
               << (cmd.command == actuator_state::ON ? "ON" : "OFF")
-              << " reason=" << static_cast<int>(cmd.reason_code) << std::endl;
+              << " reason=" << static_cast<int>(cmd.reason_code) << "\n";
 
     // send ACK
     actuator_cmd_ack ackk{};
@@ -172,7 +172,7 @@ int main(int argc, char **argv) {
                                 MANAGER_ID, payload);
     tcp_send(sock, reply);
 
-    std::cout << "[actuator] ACK sent" << std::endl;
+    std::cout << "[actuator] ACK sent" << "\n";
   }
 
   close(sock);

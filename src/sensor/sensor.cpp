@@ -34,8 +34,8 @@ int main(int argc, char **argv) {
   if (argc < 4) {
     std::cerr << "usage: sensor <device_id> <device_type> <server_ip> "
                  "[server_port=9000] [base_value]"
-              << std::endl;
-    std::cerr << "  device_type: temperature|umidity|oxygen|bpm" << std::endl;
+              << "\n";
+    std::cerr << "  device_type: temperature|umidity|oxygen|bpm" << "\n";
     return 1;
   }
 
@@ -64,7 +64,7 @@ int main(int argc, char **argv) {
     d_type = device_type::BPM_SENSOR;
     unit = "bpm";
   } else {
-    std::cerr << "unknown device_type: " << dev_type_str << std::endl;
+    std::cerr << "unknown device_type: " << dev_type_str << "\n";
     return 1;
   }
 
@@ -89,7 +89,7 @@ int main(int argc, char **argv) {
   }
 
   std::cout << "[sensor] connected to " << server_ip << ":" << server_port
-            << std::endl;
+            << "\n";
 
   // send CONNECT
   struct connect conn{};
@@ -110,15 +110,14 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  std::cout << "[sensor] CONNECT sent, waiting for ACK..." << std::endl;
+  std::cout << "[sensor] CONNECT sent, waiting for ACK..." << "\n";
 
   // wait for ACK
   unpacked_message ack_msg;
   try {
     ack_msg = tcp_receive(sock);
   } catch (const std::exception &e) {
-    std::cerr << "[sensor] failed to receive CONNECT_ACK: " << e.what()
-              << std::endl;
+    std::cerr << "[sensor] failed to receive CONNECT_ACK: " << e.what() << "\n";
 
     close(sock);
     return 1;
@@ -126,14 +125,14 @@ int main(int argc, char **argv) {
 
   if (ack_msg.header.type != message_type::CONNECT_ACK) {
     std::cerr << "[sensor] expected CONNECT_ACK, got "
-              << static_cast<int>(ack_msg.header.type) << std::endl;
+              << static_cast<int>(ack_msg.header.type) << "\n";
 
     close(sock);
     return 1;
   }
 
   if (ack_msg.payload.size() < sizeof(connect_ack)) {
-    std::cerr << "[sensor] CONNECT_ACK payload too short" << std::endl;
+    std::cerr << "[sensor] CONNECT_ACK payload too short" << "\n";
     close(sock);
     return 1;
   }
@@ -143,7 +142,7 @@ int main(int argc, char **argv) {
 
   if (cack.status != connect_stat::ACCEPTED) {
     std::string reason(cack.reason, 32);
-    std::cerr << "[sensor] connection rejected: " << reason << std::endl;
+    std::cerr << "[sensor] connection rejected: " << reason << "\n";
 
     close(sock);
     return 1;
@@ -151,7 +150,7 @@ int main(int argc, char **argv) {
 
   uint16_t interval_ms = cack.interval_ms;
   std::cout << "[sensor] CONNECT_ACK accepted, interval=" << interval_ms << "ms"
-            << std::endl;
+            << "\n";
 
   // periodic SENSOR_DATA
   uint16_t seq = 2;
@@ -178,11 +177,11 @@ int main(int argc, char **argv) {
                               dev_id, MANAGER_ID, payload);
 
     if (tcp_send(sock, msg) < 0) {
-      std::cerr << "[sensor] send error, exiting" << std::endl;
+      std::cerr << "[sensor] send error, exiting" << "\n";
       break;
     }
 
-    std::cout << "[sensor] data sent: value=" << value << std::endl;
+    std::cout << "[sensor] data sent: value=" << value << "\n";
   }
 
   close(sock);
